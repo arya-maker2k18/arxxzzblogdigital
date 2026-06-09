@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog Pribadi — ARXXZZ OFFICIAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* RESET & BASE */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #050507;
+      --card-bg: #0b0b0f;
+      --white:   #f0f0f0;
+      --muted:   #888;
+      --cyan:    #00e5ff;
+      --purple:  #a855f7;
+      --radius:  16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* CANVAS BACKGROUND */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    /* PROFILE */
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 8px;
+    }
+
+    .avatar-ring {
+      position: relative;
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      padding: 3px;
+      background: conic-gradient(from var(--avatar-angle, 0deg), transparent 0%, var(--cyan) 20%, var(--purple) 40%, transparent 55%);
+      animation: avatar-spin 3s linear infinite;
+    }
+
+    @keyframes avatar-spin {
+      to { --avatar-angle: 360deg; }
+    }
+
+    .avatar-ring img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background: #1a1a2e;
+    }
+
+    .profile-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--white);
+    }
+
+    .profile-tagline {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--cyan);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* JAM DIGITAL - DESAIN ELEGAN (TIDAK RGB MENCOLOK) */
+    .digital-clock {
+      width: 100%;
+      background: rgba(15, 15, 25, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .clock-time {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: 5px;
+      background: linear-gradient(135deg, #e6e9f0 0%, #b8c6db 50%, #a0b4cc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 8px rgba(100, 150, 200, 0.3);
+      line-height: 1.2;
+    }
+
+    .clock-date {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #aaa;
+      letter-spacing: 1.5px;
+      margin-top: 12px;
+      border-top: 1px dashed rgba(255,255,255,0.15);
+      display: inline-block;
+      padding-top: 8px;
+      padding-left: 14px;
+      padding-right: 14px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 30px;
+    }
+
+    @keyframes gentle-blink {
+      0%, 100% { opacity: 1; text-shadow: 0 0 2px #88ccff; }
+      50% { opacity: 0.5; text-shadow: 0 0 6px #88ccff; }
+    }
+    .blink-colon {
+      animation: gentle-blink 1s step-end infinite;
+      font-weight: 700;
+    }
+
+    /* BORDER PUTAR */
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    .spin-wrap {
+      width: 100%;
+      border-radius: calc(var(--radius) + 2px);
+      padding: 2px;
+      background: conic-gradient(from var(--angle), transparent 0deg, var(--spin-color-a, #00e5ff) 60deg, var(--spin-color-b, #a855f7) 100deg, transparent 140deg);
+      animation: border-spin var(--spin-speed, 4s) linear infinite;
+      animation-delay: var(--spin-delay, 0s);
+    }
+    @keyframes border-spin {
+      to { --angle: 360deg; }
+    }
+    .card {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 60%; height: 40%;
+      background: radial-gradient(ellipse at top left, rgba(255,255,255,0.04), transparent 70%);
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    /* ABOUT */
+    .about-wrap { --spin-speed: 4s; --spin-color-a: #00e5ff; --spin-color-b: #a855f7; }
+    .about-card .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 12px;
+    }
+    .about-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .about-card p {
+      font-size: 0.93rem;
+      line-height: 1.7;
+      color: #bbb;
+      margin-bottom: 20px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .meta-item { display: flex; align-items: center; gap: 10px; }
+    .meta-text .label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
+    }
+    .meta-text .value { font-size: 0.88rem; color: var(--white); font-weight: 500; }
+
+    /* SOSIAL MEDIA (1 kolom) */
+    .social-section { width: 100%; }
+    .section-heading {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .social-grid { display: flex; flex-direction: column; gap: 14px; }
+    .social-card {
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .social-card:hover { transform: translateY(-3px); filter: brightness(1.15); }
+    .social-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .social-icon svg { width: 20px; height: 20px; fill: var(--white); }
+    .social-info .name { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.95rem; }
+    .social-info .handle { font-size: 0.76rem; color: var(--muted); margin-top: 1px; font-family: 'Space Mono', monospace; }
+
+    /* PORTFOLIO */
+    .portfolio-section { width: 100%; }
+    .portfolio-grid { display: flex; flex-direction: column; gap: 14px; }
+    .port-wrap { --spin-speed: 5s; --spin-color-a: #00e5ff; --spin-color-b: #3b82f6; }
+    .portfolio-card { padding: 24px 22px; }
+    .port-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .port-logo img, .port-logo svg { width: 50px; height: 50px; border-radius: 12px; background: #1e1e2a; object-fit: cover; }
+    .port-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; margin-top: 0; }
+    .port-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,229,255,0.35);
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+    .port-desc { font-size: 0.88rem; line-height: 1.65; color: #aaa; margin-bottom: 16px; }
+    .port-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.67rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      color: #ccc;
+    }
+    .btn-website {
+      display: inline-block;
+      background: #000000;
+      border: 1.5px solid #ffffff;
+      color: #ffffff;
+      padding: 10px 28px;
+      border-radius: 40px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+    .btn-website:hover {
+      background: #ffffff;
+      color: #000000;
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: #444;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .meta-grid { grid-template-columns: 1fr; }
+      .page-wrapper { padding: 40px 16px 60px; gap: 22px; }
+      .clock-time { font-size: 1.8rem; letter-spacing: 2px; }
+      .port-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .spin-wrap, .avatar-ring { animation: none; }
+      .spin-wrap { background: linear-gradient(135deg, rgba(0,229,255,0.4), rgba(168,85,247,0.4)); }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="page-wrapper">
+
+  <!-- PROFIL -->
+  <div class="profile">
+    <div class="avatar-ring">
+      <img src="https://files.catbox.moe/yjks5m.png" alt="Foto Profil" width="118" height="118" />
+    </div>
+    <h1 class="profile-name">Arxxzz Official</h1>
+    <p class="profile-tagline">Ai Enginerr • Editing • Digital Store</p>
+  </div>
+
+  <!-- JAM DIGITAL -->
+  <div class="digital-clock">
+    <div class="clock-time" id="clockDisplay">--:--:--</div>
+    <div class="clock-date" id="dateDisplay"></div>
+  </div>
+
+  <!-- TENTANG SAYA -->
+  <div class="spin-wrap about-wrap">
+    <div class="card about-card">
+      <p class="section-label">// Tentang Saya</p>
+      <h2>Halo, saya Nama Saya Arxxzz Official 👋</h2>
+      <p>
+        Seorang kreator digital yang bersemangat dalam membangun pengalaman web yang indah
+        dan fungsional. Saya percaya bahwa desain yang baik bukan hanya tentang estetika,
+        melainkan tentang bagaimana sesuatu terasa saat digunakan.
+      </p>
+      <div class="meta-grid">
+        <div class="meta-item"><span class="meta-icon">📍</span><div class="meta-text"><span class="label">Semarang</span><span class="value"></span></div></div>
+        <div class="meta-item"><span class="meta-icon">💼</span><div class="meta-text"><span class="label">Pengangguran</span><span class="value"></span></div></div>
+        <div class="meta-item"><span class="meta-icon">🎨</span><div class="meta-text"><span class="label">Editing,Enginerr</span><span class="value"></span></div></div>
+        <div class="meta-item"><span class="meta-icon">🎓</span><div class="meta-text"><span class="label">Sekolah Menengah Pertama</span><span class="value"></span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDIA SOSIAL (sudah diperbaiki, tidak ada error tag) -->
+  <div class="social-section">
+    <p class="section-heading">// Temukan Saya Di</p>
+    <div class="social-grid">
+
+      <!-- TikTok -->
+      <div class="spin-wrap" style="--spin-speed: 3s; --spin-color-a: #ff004f; --spin-color-b: #00f2ea; --spin-delay: 0s;">
+        <a href="https://tiktok.com/@arxxzzdigital.id" target="_blank" class="card social-card" aria-label="TikTok">
+          <div class="social-icon"><svg viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 15.58a6.34 6.34 0 0 0 10.86 4.23 6.33 6.33 0 0 0 1.73-4.43v-7a8.3 8.3 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-2.77-.81z"/></svg></div>
+          <div class="social-info"><div class="name"></div><div class="handle">TIKTOK UTAMA</div></div>
+        </a>
+      </div>
+
+      <!-- YouTube -->
+      <div class="spin-wrap" style="--spin-speed: 3.5s; --spin-color-a: #ff0000; --spin-color-b: #ffffff; --spin-delay: -0.8s;">
+        <a href="https://youtube.com/@arxxzzofficial" target="_blank" class="card social-card" aria-label="YouTube">
+          <div class="social-icon"><svg viewBox="0 0 24 24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.376.505A3.016 3.016 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.376-.505a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+          <div class="social-info"><div class="name"></div><div class="handle">YOUTUBE OFFICIAL</div></div>
+        </a>
+      </div>
+
+      <!-- WhatsApp -->
+      <div class="spin-wrap" style="--spin-speed: 2.8s; --spin-color-a: #25D366; --spin-color-b: #ffffff; --spin-delay: -1.4s;">
+        <a href="https://whatsapp.com/channel/0029Vb2ReJ917En413Fdko2v" target="_blank" class="card social-card" aria-label="WhatsApp">
+          <div class="social-icon"><svg viewBox="0 0 24 24" fill="white"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.91-9.91-9.91zm0 18.23c-1.49 0-2.96-.4-4.23-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a7.98 7.98 0 0 1-1.21-4.27c0-4.44 3.61-8.05 8.05-8.05s8.05 3.61 8.05 8.05-3.61 8.05-8.05 8.05zm4.42-6.03c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.63.78-.77.94-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.41-1.33-1.65-.14-.24-.01-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.19-.47-.39-.4-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2 0 1.18.86 2.32.98 2.48.12.16 1.69 2.58 4.09 3.62.57.25 1.02.39 1.37.5.57.18 1.09.15 1.5.09.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/></svg></div>
+          <div class="social-info"><div class="name"></div><div class="handle">CHANNEL WHATSAPP</div></div>
+        </a>
+      </div>
+
+      <!-- Saweria -->
+      <div class="spin-wrap" style="--spin-speed: 3.2s; --spin-color-a: #ffffff; --spin-color-b: #888888; --spin-delay: -0.4s;">
+        <a href="https://saweria.co/arxxzzsetya" target="_blank" class="card social-card" aria-label="Saweria">
+          <div class="social-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L15 8.5L22 9.5L17 14L18.5 21L12 17.5L5.5 21L7 14L2 9.5L9 8.5L12 2Z" />
+            </svg>
+          </div>
+          <div class="social-info">
+            <div class="name"></div>
+            <div class="handle">DONATE SAWERIA</div>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PORTOFOLIO: 1 CARD PROMOSI TOPUP -->
+  <div class="portfolio-section">
+    <p class="section-heading">- WEBSITE TOPUP SAYA -</p>
+    <div class="portfolio-grid">
+      <div class="spin-wrap port-wrap" style="--spin-speed: 4s; --spin-color-a: #00e5ff; --spin-color-b: #a855f7;">
+        <div class="card portfolio-card" id="topupCard">
+          <div class="port-header">
+            <div class="port-logo">
+              <img src="https://files.catbox.moe/yjks5m.png" alt="Logo Topup">
+            </div>
+            <span class="port-badge">Promo Spesial</span>
+          </div>
+          <h3 class="port-title">ARXXZZ DIGITAL STORE</h3>
+          <p class="port-desc">
+            Layanan topup game termurah dan tercepat. Support Mobile Legends, Free Fire, PUBG, COD,
+            serta pulsa, paket data, e-money, dan pembayaran tagihan. 100% aman dan instant serta tanpa biaya admin mahal.
+          </p>
+          <div class="port-tags">
+            <span class="tag">⚡ Topup Game</span>
+            <span class="tag">📱 Pulsa/Data</span>
+            <span class="tag">💳 E-Money</span>
+            <span class="tag">🏷️ Harga Grosir</span>
+          </div>
+          <div style="text-align: center;">
+            <a href="#" id="websiteLink" class="btn-website" target="_blank">Kunjungi Website →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © 2026 Arxxzz Official — Dibuat dengan ☕ &amp; semangat
+  </footer>
+</div>
+
+<script>
+  // REGISTER CUSTOM PROPERTY
+  (function() {
+    try { CSS.registerProperty({ name: '--angle', syntax: '<angle>', initialValue: '0deg', inherits: false }); } catch(e) {}
+    try { CSS.registerProperty({ name: '--avatar-angle', syntax: '<angle>', initialValue: '0deg', inherits: false }); } catch(e) {}
+  })();
+
+  // JAM DIGITAL
+  function updateClock() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const hoursStr = hours.toString().padStart(2, '0');
+    const timeString = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
+    const clockDisplay = document.getElementById('clockDisplay');
+    if (clockDisplay) clockDisplay.innerHTML = timeString.replace(/:/g, '<span class="blink-colon">:</span>');
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateString = now.toLocaleDateString('id-ID', options);
+    const dateDisplay = document.getElementById('dateDisplay');
+    if (dateDisplay) dateDisplay.textContent = dateString;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // LINK WEBSITE TOPUP
+  const topupUrl = 'https://arxxzzstore.toko.vip/';
+  document.getElementById('websiteLink')?.setAttribute('href', topupUrl);
+  document.getElementById('topupCard')?.addEventListener('click', function(e) {
+    if (e.target.closest('.btn-website')) return;
+    window.open(topupUrl, '_blank');
+  });
+
+  // CANVAS BACKGROUND
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  
+  const PARTICLE_COUNT = 75;
+  const particles = [];
+  class Particle {
+    constructor() { this.reset(true); }
+    reset(init = false) {
+      this.x = Math.random() * W;
+      this.y = init ? Math.random() * H : H + 10;
+      this.vx = (Math.random() - 0.5) * 0.4;
+      this.vy = -(Math.random() * 0.5 + 0.15);
+      this.r = Math.random() * 2 + 0.5;
+      this.alpha = Math.random() * 0.7 + 0.2;
+      this.color = Math.random() > 0.6 ? '#00e5ff' : '#a855f7';
+    }
+    update() { this.x += this.vx; this.y += this.vy; if (this.y < -10) this.reset(); }
+    draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.globalAlpha = this.alpha; ctx.fill(); ctx.globalAlpha = 1; }
+  }
+  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+  
+  const GRID_SIZE = 48;
+  let gridOffset = 0;
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)';
+    ctx.lineWidth = 0.6;
+    for (let x = 0; x <= W; x += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    const offset = gridOffset % GRID_SIZE;
+    for (let y = -GRID_SIZE + offset; y <= H; y += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  }
+  
+  const pulseLines = [];
+  function spawnPulse() { if (Math.random() < 0.01) pulseLines.push({ y: Math.random() * H, alpha: 0.5, w: Math.random() * W * 0.7 + W * 0.15, x: Math.random() * W * 0.3, color: Math.random() > 0.5 ? '#00e5ff' : '#a855f7' }); }
+  function drawPulses() {
+    for (let i = pulseLines.length - 1; i >= 0; i--) {
+      const p = pulseLines[i];
+      const grad = ctx.createLinearGradient(p.x, 0, p.x + p.w, 0);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(0.3, p.color);
+      grad.addColorStop(0.7, p.color);
+      grad.addColorStop(1, 'transparent');
+      ctx.globalAlpha = p.alpha;
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + p.w, p.y);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      p.alpha -= 0.008;
+      if (p.alpha <= 0) pulseLines.splice(i, 1);
+    }
+  }
+  
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    const vignette = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.8);
+    vignette.addColorStop(0, 'rgba(5,5,7,0.3)');
+    vignette.addColorStop(1, 'rgba(5,5,7,0.85)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, W, H);
+    gridOffset += 0.35;
+    drawGrid();
+    spawnPulse();
+    drawPulses();
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+</body>
+</html>
